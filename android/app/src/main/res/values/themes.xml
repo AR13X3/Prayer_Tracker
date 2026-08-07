@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base app/activity theme. Actual colors come from Compose (Material 3) at runtime;
+         this only needs to be a no-action-bar theme for the Activity to inflate against. -->
+    <style name="Theme.PrayerTracker" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

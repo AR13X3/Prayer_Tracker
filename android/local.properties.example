@@ -1,0 +1,12 @@
+# Copy this file to `local.properties` and fill in real values.
+# local.properties is gitignored — secrets never get committed.
+
+# Android SDK location (Android Studio usually writes this automatically):
+# sdk.dir=C\:\\Users\\ahmed\\AppData\\Local\\Android\\Sdk
+
+# Supabase project settings → API:
+#   SUPABASE_URL       = the Project URL           (e.g. https://ybciyuylao...supabase.co)
+#   SUPABASE_ANON_KEY  = the "anon"/publishable key (safe to ship in the app; RLS protects data)
+# NEVER put the service_role key here — it bypasses RLS.
+SUPABASE_URL=https://YOUR-PROJECT-REF.supabase.co
+SUPABASE_ANON_KEY=YOUR-ANON-PUBLISHABLE-KEY
