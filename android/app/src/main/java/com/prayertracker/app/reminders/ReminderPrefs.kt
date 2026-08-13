@@ -28,14 +28,17 @@ class ReminderPrefs(context: Context) {
         sp.edit().putBoolean("prayer_${prayer.db}", enabled).apply()
     }
 
-    /** Cached location so the alarm scheduler never needs the network. */
-    fun cacheLocation(lat: Double, lng: Double, method: String, madhab: String, timezone: String) {
+    /**
+     * Cached location so the alarm scheduler never needs the network. No timezone is
+     * cached: the scheduler reads the device zone at fire time, which is what makes
+     * reminders follow the phone across travel and DST without a re-sync.
+     */
+    fun cacheLocation(lat: Double, lng: Double, method: String, madhab: String) {
         sp.edit()
             .putString("lat", lat.toString())
             .putString("lng", lng.toString())
             .putString("method", method)
             .putString("madhab", madhab)
-            .putString("timezone", timezone)
             .apply()
     }
 
@@ -44,7 +47,6 @@ class ReminderPrefs(context: Context) {
         val lng: Double,
         val method: String,
         val madhab: String,
-        val timezone: String,
     )
 
     fun cachedLocation(): CachedLocation? {
@@ -55,7 +57,6 @@ class ReminderPrefs(context: Context) {
             lng = lng,
             method = sp.getString("method", "MuslimWorldLeague")!!,
             madhab = sp.getString("madhab", "shafi")!!,
-            timezone = sp.getString("timezone", "Australia/Sydney")!!,
         )
     }
 }

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.ZoneId
 
 data class SettingsUiState(
     val loading: Boolean = true,
@@ -15,7 +16,8 @@ data class SettingsUiState(
     val error: String? = null,
     val saved: Boolean = false,
     val displayName: String = "",
-    val timezone: String = "Australia/Sydney",
+    /** Read-only, from the phone. Shown so the user can see which clock times are in. */
+    val timezone: String = ZoneId.systemDefault().id,
     val latitude: Double? = null,
     val longitude: Double? = null,
     val cityLabel: String? = null,
@@ -44,7 +46,8 @@ class SettingsViewModel : ViewModel() {
                     _ui.value = SettingsUiState(
                         loading = false,
                         displayName = p.displayName,
-                        timezone = p.timezone,
+                        // Deliberately not p.timezone — the phone is the source of truth.
+                        timezone = ZoneId.systemDefault().id,
                         latitude = p.latitude,
                         longitude = p.longitude,
                         cityLabel = p.cityLabel,
@@ -64,13 +67,13 @@ class SettingsViewModel : ViewModel() {
     fun onCustomLat(v: String) = _ui.update { it.copy(customLat = v, saved = false) }
     fun onCustomLng(v: String) = _ui.update { it.copy(customLng = v, saved = false) }
 
-    fun onSelectCity(label: String, lat: Double, lng: Double, timezone: String) = _ui.update {
+    /** Sets *where* you pray. The timezone is untouched — that follows the phone. */
+    fun onSelectCity(label: String, lat: Double, lng: Double) = _ui.update {
         it.copy(
             useCustom = false,
             cityLabel = label,
             latitude = lat,
             longitude = lng,
-            timezone = timezone,
             customLat = lat.toString(),
             customLng = lng.toString(),
             saved = false,
@@ -107,7 +110,7 @@ class SettingsViewModel : ViewModel() {
             runCatching {
                 profileRepo.updateProfile(
                     displayName = s.displayName.trim(),
-                    timezone = s.timezone,
+                    timezone = ZoneId.systemDefault().id,
                     latitude = lat,
                     longitude = lng,
                     cityLabel = cityLabel,

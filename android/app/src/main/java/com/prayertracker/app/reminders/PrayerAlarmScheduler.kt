@@ -36,8 +36,8 @@ object PrayerAlarmScheduler {
 
         val loc = prefs.cachedLocation()
         if (prefs.masterEnabled && loc != null) {
-            val zone = runCatching { ZoneId.of(loc.timezone) }.getOrDefault(ZoneId.systemDefault())
-            val today = LocalDate.now(zone)
+            // Device zone, so alarms re-anchor to the new local day after travel or DST.
+            val today = LocalDate.now(ZoneId.systemDefault())
             val times = PrayerTimesCalculator.compute(loc.lat, loc.lng, today, loc.method, loc.madhab)
             val now = System.currentTimeMillis()
 

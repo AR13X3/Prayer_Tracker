@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 data class Profile(
     val id: String,
     @SerialName("display_name") val displayName: String,
-    val timezone: String = "Australia/Sydney",
+    // The user's last-known device zone, written back by the app. Nothing renders from it —
+    // display and alarms read ZoneId.systemDefault() — it's here for friend-facing views.
+    val timezone: String = "UTC",
     val latitude: Double? = null,
     val longitude: Double? = null,
     @SerialName("city_label") val cityLabel: String? = null,

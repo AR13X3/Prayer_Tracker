@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Brand palette, mirrored from ui/theme/Theme.kt. Compose owns the in-app colours; these
+  exist for the things Compose can't reach — the launcher icon and the pre-Compose splash
+  window. Keep the two in sync if the palette changes.
+-->
+<resources>
+    <color name="brand_coral">#EC5E3F</color>
+    <color name="brand_coral_light">#F2765A</color>
+    <color name="brand_coral_dark">#D8462A</color>
+    <color name="brand_ink">#171614</color>
+    <color name="brand_warm">#F4F2EE</color>
+</resources>

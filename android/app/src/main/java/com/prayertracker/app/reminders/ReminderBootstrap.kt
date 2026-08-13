@@ -23,7 +23,6 @@ object ReminderBootstrap {
                 lng = lng,
                 method = profile.calculationMethod,
                 madhab = profile.madhab,
-                timezone = profile.timezone,
             )
         }
         PrayerAlarmScheduler.reschedule(context)

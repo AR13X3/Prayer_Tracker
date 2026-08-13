@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Brand mark: a mihrab arch with a crescent inside it.
+
+  Geometry lives in the 108x108 adaptive-icon viewport and is kept inside the 72dp safe
+  zone (x 34..74, y 27.5..80.5), so no launcher mask clips it. The same two paths are
+  reused by ic_launcher_monochrome.xml and splash_icon.xml — edit all three together.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Arch -->
+    <path
+        android:pathData="M37,77.5 L37,50 C37,39.4 44.6,30.5 54,30.5 C63.4,30.5 71,39.4 71,50 L71,77.5"
+        android:strokeColor="@color/brand_warm"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- Crescent -->
+    <path
+        android:pathData="M59.75,39.5 A10.5,10.5 0 1 0 59.75,60.5 A12.5,12.5 0 0 1 59.75,39.5 Z"
+        android:fillColor="@color/brand_warm" />
+</vector>

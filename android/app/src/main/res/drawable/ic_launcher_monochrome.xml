@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Themed-icon layer (Android 13+): the same mark as ic_launcher_foreground.xml, flat black
+  on transparent. The system recolours it from the user's wallpaper palette, so the colour
+  here only needs to be opaque.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path
+        android:pathData="M37,77.5 L37,50 C37,39.4 44.6,30.5 54,30.5 C63.4,30.5 71,39.4 71,50 L71,77.5"
+        android:strokeColor="#000000"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <path
+        android:pathData="M59.75,39.5 A10.5,10.5 0 1 0 59.75,60.5 A12.5,12.5 0 0 1 59.75,39.5 Z"
+        android:fillColor="#000000" />
+</vector>

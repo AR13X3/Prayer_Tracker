@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -117,9 +119,13 @@ fun SettingsScreen(
                         modifier = Modifier.weight(1f),
                     )
                 }
-                Spacer(Modifier.height(6.dp))
-                Text("Timezone: ${s.timezone}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            Spacer(Modifier.height(10.dp))
+            Text(
+                "Times shown in ${s.timezone} — from your phone's clock, so it updates itself when you travel.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
 
         SoftCard(Modifier.fillMaxWidth()) {
@@ -234,16 +240,49 @@ private fun ReminderSettings() {
 @Composable
 private fun CityDropdown(currentLabel: String, vm: SettingsViewModel) {
     var expanded by remember { mutableStateOf(false) }
+    var query by remember { mutableStateOf("") }
+    val matches = remember(query) { Presets.search(query) }
+
+    fun dismiss() {
+        expanded = false
+        query = ""
+    }
+
     Box(Modifier.fillMaxWidth()) {
         OutlinePill(currentLabel, onClick = { expanded = true }, modifier = Modifier.fillMaxWidth())
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            Presets.cities.forEach { c ->
-                DropdownMenuItem(
-                    text = { Text(c.label) },
-                    onClick = { expanded = false; vm.onSelectCity(c.label, c.latitude, c.longitude, c.timezone) },
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = ::dismiss,
+            modifier = Modifier.heightIn(max = 420.dp),
+        ) {
+            // The preset list is long enough that scrolling it is worse than typing.
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                label = { Text("Search") },
+                singleLine = true,
+                modifier = Modifier.padding(horizontal = 12.dp).width(260.dp),
+            )
+            Spacer(Modifier.height(4.dp))
+
+            if (matches.isEmpty()) {
+                Text(
+                    "No city matches \"$query\". Use Custom below to enter coordinates.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).width(260.dp),
                 )
             }
-            DropdownMenuItem(text = { Text("Custom (enter coordinates)") }, onClick = { expanded = false; vm.onChooseCustom() })
+            matches.forEach { c ->
+                DropdownMenuItem(
+                    text = { Text(c.label) },
+                    onClick = { dismiss(); vm.onSelectCity(c.label, c.latitude, c.longitude) },
+                )
+            }
+            DropdownMenuItem(
+                text = { Text("Custom (enter coordinates)") },
+                onClick = { dismiss(); vm.onChooseCustom() },
+            )
         }
     }
 }

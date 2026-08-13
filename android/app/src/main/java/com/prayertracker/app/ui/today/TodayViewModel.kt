@@ -60,7 +60,12 @@ class TodayViewModel : ViewModel() {
         viewModelScope.launch {
             runCatching {
                 val profile = profileRepo.getMyProfile() ?: error("Profile not found")
-                zone = runCatching { ZoneId.of(profile.timezone) }.getOrDefault(ZoneId.systemDefault())
+
+                // Times are absolute instants; the clock they're read on is the phone's.
+                // Travel, DST and a changed system setting all just work, with no re-save.
+                zone = ZoneId.systemDefault()
+                if (profile.timezone != zone.id) syncTimezone(zone.id)
+
                 val today = LocalDate.now(zone)
                 selectedDate = date ?: selectedDate.coerceIntoWeekOf(today)
 
@@ -151,6 +156,15 @@ class TodayViewModel : ViewModel() {
         val rows = _ui.value.rows.filter { it.name.isFard }
         if (rows.isEmpty()) return 0f
         return rows.count { it.status in prayed }.toFloat() / rows.size
+    }
+
+    /**
+     * Best-effort write-back of the device zone to profiles.timezone. Nothing in the app
+     * reads that column any more — it's there so a friend viewing your day knows where
+     * your midnight falls — so a failure here must not fail the screen.
+     */
+    private fun syncTimezone(zoneId: String) {
+        viewModelScope.launch { runCatching { profileRepo.setTimezone(zoneId) } }
     }
 
     private fun rowOf(p: PrayerName) = _ui.value.rows.firstOrNull { it.name == p }

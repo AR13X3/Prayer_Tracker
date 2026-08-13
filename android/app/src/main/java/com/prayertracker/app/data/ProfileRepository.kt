@@ -24,6 +24,14 @@ class ProfileRepository(
             .decodeSingleOrNull()
     }
 
+    /** Write-back of the device's current zone. Called opportunistically when it drifts. */
+    suspend fun setTimezone(timezone: String) {
+        val id = client.auth.currentUserOrNull()?.id ?: return
+        client.from("profiles").update({ set("timezone", timezone) }) {
+            filter { eq("id", id) }
+        }
+    }
+
     /** Updates only the columns the Settings screen owns. RLS restricts this to the caller's row. */
     suspend fun updateProfile(
         displayName: String,
