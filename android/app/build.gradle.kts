@@ -52,7 +52,12 @@ android {
     signingConfigs {
         if (hasSigningConfig) {
             create("release") {
-                storeFile = file(keystoreProps.getProperty("storeFile"))
+                // rootProject.file (not the bare file()) — a relative path here must resolve
+                // against android/, matching keystore.properties.example's documented
+                // behavior and where the CI workflow writes the decoded keystore. A bare
+                // file() call inside this module's build script resolves against android/app/
+                // instead, which only an absolute storeFile path (e.g. local dev) papers over.
+                storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
                 storePassword = keystoreProps.getProperty("storePassword")
                 keyAlias = keystoreProps.getProperty("keyAlias")
                 keyPassword = keystoreProps.getProperty("keyPassword")
