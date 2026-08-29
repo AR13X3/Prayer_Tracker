@@ -40,8 +40,8 @@ android {
         // (the CI workflow checks and fails the build otherwise). Bump both together —
         // scripts/release.sh does it for you. Obtainium compares versionName against each
         // GitHub Release's tag to decide whether an update is available.
-        versionCode = 3
-        versionName = "0.2.1"
+        versionCode = 4
+        versionName = "0.2.2"
 
         // Injected into BuildConfig.SUPABASE_URL / SUPABASE_ANON_KEY at build time.
         buildConfigField("String", "SUPABASE_URL", "\"${secret("SUPABASE_URL")}\"")
