@@ -222,6 +222,35 @@ All UI glyphs are **Lucide icons** transcribed to Compose `ImageVector`s in
 `ui/design/LucideIcons.kt` (sun, flame, users, settings, arrow-left, compass) — zero
 dependency. Recolored via `Icon(tint=…)` like Material icons.
 
+### Added: Obtainium updates + version tracker (new session)
+Distribution is now GitHub Releases, tracked automatically by Obtainium — friends get
+in-place updates instead of a new APK file passed around each time.
+- **Repo will be public** (was private; confirmed clean — full git history swept for secrets,
+  none found — before recommending this). You still need to flip it in GitHub's UI yourself
+  (Settings → General → Danger Zone → Change visibility); I don't have the access to do it.
+- **Signing wired into Gradle**: `android/keystore.properties` (gitignored; `.example` checked
+  in) feeds `signingConfigs.release` in `app/build.gradle.kts`. You said you still have the
+  keystore from the earlier Android Studio wizard build — point `storeFile` at it. Missing the
+  file just means an unsigned release build locally; CI always supplies it via secrets.
+- **`.github/workflows/release.yml`**: on push of a tag `vX.Y.Z`, builds a signed release APK
+  and publishes it as a GitHub Release with the APK attached. Verifies the tag matches
+  `versionName` first and fails loudly if not.
+- **`scripts/release.sh X.Y.Z`**: bumps `versionCode`+`versionName` together, commits, tags —
+  stops short of pushing (pushing a tag is the trigger, so that stays a deliberate action you
+  take, per the "confirm before shared-state actions" rule).
+- **In-app version tracker**: Settings → About now shows the running version/build and a
+  "View releases on GitHub" button (`BuildConfig.GITHUB_REPO_URL`, also newly injected).
+- Bumped to **versionCode 2 / versionName "0.2.0"** as the first Obtainium-trackable release.
+- **Root [README.md](../README.md)** now has the friend-facing Obtainium install steps and
+  the maintainer release process + the 6 required GitHub Actions secrets.
+
+**Still on you before the first release:**
+1. Flip the repo to public on GitHub.
+2. Add the 6 repo secrets (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `RELEASE_KEYSTORE_BASE64`,
+   `RELEASE_KEYSTORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD`) — steps in README.
+3. Create `android/keystore.properties` from the `.example`, pointing at your real keystore.
+4. Run `scripts/release.sh 0.2.0` then `git push --follow-tags` to cut the first tracked release.
+
 ## Session end — self-review done
 Before stopping I re-read the integration points and swept the whole `app/` source:
 - No stale references (HomeScreen removed cleanly), no imports needing absent dependencies

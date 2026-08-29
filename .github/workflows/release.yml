@@ -1,0 +1,72 @@
+name: Release
+
+# Triggered by pushing a tag like v0.2.0. The tag's version (minus the leading "v") must
+# exactly match app/build.gradle.kts's versionName — the workflow fails fast if they drift,
+# since that mismatch is exactly what would make Obtainium (or a user) think an update
+# didn't change anything. scripts/release.sh bumps both together and creates the tag for you.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write # to create the Release and upload the APK asset
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Verify tag matches app version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          GRADLE_VERSION=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/build.gradle.kts)
+          if [ "$TAG_VERSION" != "$GRADLE_VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME (version $TAG_VERSION) does not match versionName '$GRADLE_VERSION' in app/build.gradle.kts. Bump versionName + versionCode and retag — scripts/release.sh does both."
+            exit 1
+          fi
+
+      - name: Write local.properties (Supabase connection)
+        run: |
+          cat > local.properties <<EOF
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+          EOF
+
+      - name: Write signing config
+        run: |
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+          cat > keystore.properties <<EOF
+          storeFile=release.keystore
+          storePassword=${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.RELEASE_KEY_ALIAS }}
+          keyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}
+          EOF
+
+      - name: Build signed release APK
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleRelease --no-daemon
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "app/build/outputs/apk/release/app-release.apk#Prayer Tracker $GITHUB_REF_NAME (APK)" \
+            --title "Prayer Tracker $GITHUB_REF_NAME" \
+            --generate-notes

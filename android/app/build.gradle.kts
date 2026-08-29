@@ -16,6 +16,18 @@ val localProps = Properties().apply {
 }
 fun secret(name: String): String = localProps.getProperty(name) ?: ""
 
+// Release signing. keystore.properties is gitignored; see keystore.properties.example.
+// Absent locally means an unsigned release build (fine for a compile check) — CI always
+// writes this file from GitHub Actions secrets before building.
+val keystoreProps = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val hasSigningConfig = keystoreProps.getProperty("storeFile") != null
+
+// Public repo (Obtainium's GitHub-Releases source polls this for updates — see README).
+val githubRepoUrl = "https://github.com/AR13X3/Prayer_Tracker"
+
 android {
     namespace = "com.prayertracker.app"
     compileSdk = 36
@@ -24,18 +36,35 @@ android {
         applicationId = "com.prayertracker.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        // versionName is also the release tag: pushing tag `vX.Y.Z` must match this exactly
+        // (the CI workflow checks and fails the build otherwise). Bump both together —
+        // scripts/release.sh does it for you. Obtainium compares versionName against each
+        // GitHub Release's tag to decide whether an update is available.
+        versionCode = 2
+        versionName = "0.2.0"
 
         // Injected into BuildConfig.SUPABASE_URL / SUPABASE_ANON_KEY at build time.
         buildConfigField("String", "SUPABASE_URL", "\"${secret("SUPABASE_URL")}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${secret("SUPABASE_ANON_KEY")}\"")
+        buildConfigField("String", "GITHUB_REPO_URL", "\"$githubRepoUrl\"")
+    }
+
+    signingConfigs {
+        if (hasSigningConfig) {
+            create("release") {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false // enable later with a tested proguard config
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (hasSigningConfig) signingConfig = signingConfigs.getByName("release")
         }
     }
 

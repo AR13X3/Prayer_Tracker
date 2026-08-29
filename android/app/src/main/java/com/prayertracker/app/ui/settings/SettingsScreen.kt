@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import com.prayertracker.app.BuildConfig
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -155,6 +156,8 @@ fun SettingsScreen(
 
         SoftCard(Modifier.fillMaxWidth()) { ReminderSettings() }
 
+        SoftCard(Modifier.fillMaxWidth()) { AboutSection() }
+
         OutlinePill(
             text = "Sign out",
             onClick = {
@@ -235,6 +238,35 @@ private fun ReminderSettings() {
             )
         }
     }
+}
+
+/**
+ * Version tracker: shows what build is installed, and a link to the GitHub Releases page —
+ * the same place Obtainium watches for updates, so this doubles as a manual "check now".
+ */
+@Composable
+private fun AboutSection() {
+    val context = LocalContext.current
+    SectionLabel("About")
+    Spacer(Modifier.height(10.dp))
+    Text(
+        "Prayer Tracker · version ${BuildConfig.VERSION_NAME} (build ${BuildConfig.VERSION_CODE})",
+        style = MaterialTheme.typography.bodyMedium,
+    )
+    Spacer(Modifier.height(4.dp))
+    Text(
+        "Updates deliver automatically via Obtainium once it's set up — see the README, or check manually below.",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Spacer(Modifier.height(12.dp))
+    OutlinePill(
+        text = "View releases on GitHub",
+        onClick = {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${BuildConfig.GITHUB_REPO_URL}/releases")))
+        },
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
 
 @Composable
