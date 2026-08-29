@@ -8,6 +8,10 @@ on:
   push:
     tags:
       - "v*.*.*"
+  # Manual fallback — e.g. re-running a release, or the rare case where a brand-new workflow
+  # file and its first triggering tag land in the same push and GitHub misses the event.
+  # Run against the tag ref: gh workflow run Release --ref vX.Y.Z
+  workflow_dispatch:
 
 permissions:
   contents: write # to create the Release and upload the APK asset
