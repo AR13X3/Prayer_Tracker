@@ -1,0 +1,11 @@
+{
+  "name": "prayer-tracker",
+  "compatibility_date": "2026-08-30",
+  "assets": {
+    "directory": "./dist/",
+    // Required for client-side routing (react-router-dom): a deep link like /settings or a
+    // page refresh on /friend/abc has no matching static file, so unknown paths must fall
+    // back to index.html and let the SPA's router take over, instead of 404ing.
+    "not_found_handling": "single-page-application"
+  }
+}
