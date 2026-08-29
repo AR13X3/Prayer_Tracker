@@ -176,12 +176,16 @@ class TodayViewModel : ViewModel() {
     private fun formatTime(epochMillis: Long): String =
         Instant.ofEpochMilli(epochMillis).atZone(zone).format(TIME_FMT)
 
-    private fun weekOf(today: LocalDate): List<LocalDate> {
-        val monday = today.minusDays((today.dayOfWeek.value - 1).toLong())
-        return (0..6).map { monday.plusDays(it.toLong()) }
-    }
+    /**
+     * Rolling 7-day window ending today — NOT a calendar Mon-Sun week. Isha can run past
+     * midnight, so whoever logs it after the date has rolled over needs "yesterday" to still
+     * be one tap away; a fixed calendar week hides it the moment today starts a new week.
+     * A rolling window makes yesterday reachable every single day, not just most of them.
+     */
+    private fun weekOf(today: LocalDate): List<LocalDate> =
+        (6 downTo 0).map { today.minusDays(it.toLong()) }
 
-    /** Keep the selected date inside the currently displayed week. */
+    /** Keep the selected date inside the currently displayed window. */
     private fun LocalDate.coerceIntoWeekOf(today: LocalDate): LocalDate {
         val week = weekOf(today)
         return if (this in week) this else today
